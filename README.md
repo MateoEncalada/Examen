@@ -75,6 +75,17 @@ END$$
 
 DELIMITER ;
 ```
+### 🧨 ¿Qué hace el trigger `trigger_log_insert`?
+
+El trigger `trigger_log_insert` se ejecuta automáticamente después de cada inserción en la tabla `resultados_examenes`. Su función es **registrar en la tabla `log_cambios_resultados`** información clave de cada nuevo examen ingresado, incluyendo:
+
+- El tipo de operación (`INSERT`)
+- El ID del paciente
+- El tipo de examen
+- La fecha y hora del registro
+
+Esto permite **mantener un historial de auditoría**, esencial para la trazabilidad y control de cambios en entornos clínicos donde la integridad de los datos es crítica.
+
 ### 📜 3. Documento PDF de análisis
 Ruta: `doc/`
 
