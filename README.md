@@ -43,7 +43,38 @@ Contiene:
 Ruta: `sql/`
 
 - `bionet_schema.sql` → Crea la base de datos `bionet`, las tablas `resultados_examenes` y `log_cambios_resultados`, y su trigger de auditoría.
+```
+   USE bionet;
 
+CREATE TABLE IF NOT EXISTS resultados_examenes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    laboratorio_id VARCHAR(50),
+    paciente_id VARCHAR(50),
+    tipo_examen VARCHAR(100),
+    resultado TEXT,
+    fecha_examen DATE,
+    UNIQUE KEY unique_resultado (paciente_id, tipo_examen, fecha_examen)
+);
+log_cambios_resultadosCREATE TABLE IF NOT EXISTS log_cambios_resultados (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    operacion VARCHAR(10),
+    paciente_id VARCHAR(50),
+    tipo_examen VARCHAR(100),
+    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+DELIMITER $$
+
+CREATE TRIGGER trigger_log_inserttrigger_log_insert
+AFTER INSERT ON resultados_examenes
+FOR EACH ROW
+BEGIN
+    INSERT INTO log_cambios_resultados (operacion, paciente_id, tipo_examen)
+    VALUES ('INSERT', NEW.paciente_id, NEW.tipo_examen);
+END$$
+
+DELIMITER ;
+```
 ### 📜 3. Documento PDF de análisis
 Ruta: `doc/`
 
