@@ -9,18 +9,19 @@ public class LabResultsRoute extends RouteBuilder {
     @Override
     public void configure() throws Exception {
 
-        // Obtener la ruta base donde se ejecuta el proyecto
+        // Ruta base del sistema
         String basePath = System.getProperty("user.dir");
-
-        // Construir rutas absolutas para entrada y salida
         String inputPath = "file:" + basePath + "/demo/input-labs?include=.*\\.csv&noop=true";
         String outputProcessed = "file:" + basePath + "/demo/output/processed";
         String outputError = "file:" + basePath + "/demo/output/error";
-        from("timer:pruebaConexion?repeatCount=1")
-        .setBody(constant("SELECT 1"))
-        .to("jdbc:dataSource")
-        .log("✅ Conexión a la base de datos exitosa: ${body}");
 
+        // 🔍 Ruta de prueba de conexión a la base
+        from("timer:pruebaConexion?repeatCount=1")
+            .setBody(constant("SELECT 1"))
+            .to("jdbc:dataSource")
+            .log("✅ Conexión a la base de datos exitosa: ${body}");
+
+        // 📥 Ruta principal para procesar archivos CSV
         from(inputPath)
             .log("📂 Archivo detectado: ${file:name}")
             .process(exchange -> {
@@ -32,10 +33,8 @@ public class LabResultsRoute extends RouteBuilder {
 
                     if (lines.length >= 2) {
                         String header = lines[0].toLowerCase().trim();
-                        String firstDataLine = lines[1].toLowerCase().trim();
 
                         if (header.contains("paciente_id") && header.contains("tipo_examen") && header.contains("resultado")) {
-                            // Validación básica del contenido mínimo necesario
                             estadoArchivo = "processed";
                         }
                     }
@@ -46,14 +45,18 @@ public class LabResultsRoute extends RouteBuilder {
                 exchange.setProperty("estadoArchivo", estadoArchivo);
             })
             .choice()
-                .when(simple("${exchangeProperty.estadoArchivo} == 'processed'"))
-                    .log("✅ Archivo válido. Enviado a 'processed'")
-                    .to(outputProcessed)
-                .otherwise()
-                    .log("❌ Archivo inválido. Enviado a 'error'")
-                    .to(outputError)
-            .end()
+    .when(simple("${exchangeProperty.estadoArchivo} == 'processed'"))
+        .log("✅ Archivo válido. Enviado a 'processed'")
+        .to(outputProcessed)
+        .process(new ResultadoExamenProcessor())
+        .split(body())
+        .to("jdbc:dataSource")
+        .log("📝 Registro insertado en BD.")
+    .endChoice()  
+    .otherwise()
+        .log("❌ Archivo inválido. Enviado a 'error'")
+        .to(outputError)
+.end()
             .log("🔄 Transferencia finalizada para: ${file:name}");
     }
 }
-

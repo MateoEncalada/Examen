@@ -1,0 +1,4 @@
+laboratorio_id,paciente_id,tipo_examen,resultado,fecha_examen
+LAB001,12345678,glucosa,95,2024-04-22
+LAB002,87654321,colesterol,180,2024-04-23
+LAB003,11223344,hematocrito,40,2024-04-24

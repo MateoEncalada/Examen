@@ -1,0 +1,3 @@
+laboratorio_id,paciente_id,tipo_examen,resultado,fecha_examen
+LAB005,55555555,glucosa,78
+LAB006,66666666,colesterol,201,2024-04-26
