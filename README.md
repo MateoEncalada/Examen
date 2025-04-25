@@ -87,9 +87,9 @@ El trigger `trigger_log_insert` se ejecuta automáticamente después de cada ins
 Esto permite **mantener un historial de auditoría**, esencial para la trazabilidad y control de cambios en entornos clínicos donde la integridad de los datos es crítica.
 
 ### 📜 3. Documento PDF de análisis
-Ruta: `doc/`
+Puedes consultar el informe formal aquí:
 
-- `Informe_BioNet_Integracion.pdf` → Documento formal con análisis del problema, patrones usados y diseño de la solución.
+[📎 Informe_BioNet_Integracion.pdf](./doc/Informe_BioNet_Integracion.pdf)
 
 ### 📷 4. Capturas de ejecución funcional
 Ruta: `capturas/`
