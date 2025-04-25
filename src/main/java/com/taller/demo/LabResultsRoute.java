@@ -16,6 +16,10 @@ public class LabResultsRoute extends RouteBuilder {
         String inputPath = "file:" + basePath + "/demo/input-labs?include=.*\\.csv&noop=true";
         String outputProcessed = "file:" + basePath + "/demo/output/processed";
         String outputError = "file:" + basePath + "/demo/output/error";
+        from("timer:pruebaConexion?repeatCount=1")
+        .setBody(constant("SELECT 1"))
+        .to("jdbc:dataSource")
+        .log("✅ Conexión a la base de datos exitosa: ${body}");
 
         from(inputPath)
             .log("📂 Archivo detectado: ${file:name}")
