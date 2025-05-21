@@ -3,36 +3,39 @@ version: 2.1
 jobs:
   build:
     docker:
-      - image: cimg/node:18.16.0
+      - image: cimg/openjdk:17.0
     steps:
       - checkout
-      - run: echo "Instalando dependencias..."
-      - run: npm install
+      - run:
+          name: Compilar el proyecto
+          command: mvn clean compile
 
   test:
     docker:
-      - image: cimg/node:18.16.0
+      - image: cimg/openjdk:17.0
     steps:
       - checkout
-      - run: echo "Ejecutando tests..."
-      - run: npm test
+      - run:
+          name: Ejecutar pruebas
+          command: mvn test
 
-  lint:
+  package:
     docker:
-      - image: cimg/node:18.16.0
+      - image: cimg/openjdk:17.0
     steps:
       - checkout
-      - run: echo "Verificando estilo de código..."
-      - run: npm run lint
+      - run:
+          name: Empaquetar la aplicación
+          command: mvn package
 
 workflows:
   version: 2
-  build_and_test:
+  build_test_package:
     jobs:
       - build
-      - lint:
-          requires:
-            - build
       - test:
           requires:
             - build
+      - package:
+          requires:
+            - test
