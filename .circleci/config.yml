@@ -23,10 +23,14 @@ jobs:
             TEST_FILES=$(circleci tests split --split-by=timings $(find src/test/java -name "*Test.java"))
             echo "$TEST_FILES" | xargs -n 1 -I {} mvn -Dtest={} test
       - run:
-          name: Copiar resultados de pruebas
+          name: Copiar resultados de pruebas (si existen)
           command: |
             mkdir -p test-results
-            cp -r target/surefire-reports test-results/junit
+            if [ -d target/surefire-reports ]; then
+              cp -r target/surefire-reports test-results/junit
+            else
+              echo "No se encontraron reportes de pruebas en este contenedor."
+            fi
       - store_test_results:
           path: test-results
 
