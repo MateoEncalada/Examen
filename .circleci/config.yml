@@ -13,11 +13,22 @@ jobs:
   test:
     docker:
       - image: cimg/openjdk:17.0
+    parallelism: 3
     steps:
       - checkout
       - run:
-          name: Ejecutar pruebas
-          command: mvn test
+          name: Ejecutar pruebas en paralelo
+          command: |
+            mkdir -p test-results
+            TEST_FILES=$(circleci tests split --split-by=timings $(find src/test/java -name "*Test.java"))
+            echo "$TEST_FILES" | xargs -n 1 -I {} mvn -Dtest={} test
+      - run:
+          name: Copiar resultados de pruebas
+          command: |
+            mkdir -p test-results
+            cp -r target/surefire-reports test-results/junit
+      - store_test_results:
+          path: test-results
 
   package:
     docker:
