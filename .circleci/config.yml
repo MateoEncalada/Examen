@@ -21,7 +21,7 @@ jobs:
           command: |
             mkdir -p test-results
             TEST_FILES=$(circleci tests split --split-by=timings $(find src/test/java -name "*Test.java"))
-            echo "$TEST_FILES" | xargs -n 1 -I {} mvn -Dtest={} test
+            echo "$TEST_FILES" | xargs -I {} mvn -Dtest={} test
       - run:
           name: Copiar resultados de pruebas (si existen)
           command: |
