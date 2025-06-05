@@ -1,41 +1,23 @@
-version: 2.1
-
-jobs:
-  build:
-    docker:
-      - image: cimg/openjdk:17.0
-    steps:
-      - checkout
-      - run:
-          name: Compilar el proyecto
-          command: mvn clean compile
-
   test:
     docker:
       - image: cimg/openjdk:17.0
+    parallelism: 3
     steps:
       - checkout
       - run:
-          name: Ejecutar pruebas
-          command: mvn test
-
-  package:
-    docker:
-      - image: cimg/openjdk:17.0
-    steps:
-      - checkout
+          name: Ejecutar pruebas en paralelo
+          command: |
+            mkdir -p test-results
+            TEST_FILES=$(circleci tests split --split-by=timings $(find src/test/java -name "*Test.java"))
+            echo "$TEST_FILES" | xargs -I {} mvn -Dtest={} test
       - run:
-          name: Empaquetar la aplicación
-          command: mvn package
-
-workflows:
-  version: 2
-  build_test_package:
-    jobs:
-      - build
-      - test:
-          requires:
-            - build
-      - package:
-          requires:
-            - test
+          name: Copiar resultados de pruebas (si existen)
+          command: |
+            mkdir -p test-results
+            if [ -d target/surefire-reports ]; then
+              cp -r target/surefire-reports test-results/junit
+            else
+              echo "No se encontraron reportes de pruebas en este contenedor."
+            fi
+      - store_test_results:
+          path: test-results
